@@ -1,0 +1,137 @@
+:root {
+  --bg: #ffffff;
+  --fg: #1a1a1a;
+  --muted: #555555;
+  --accent: #1f5fbf;
+  --border: #d0d7de;
+  --done: #1a7f37;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0d1117;
+    --fg: #e6edf3;
+    --muted: #9da7b3;
+    --accent: #6cb6ff;
+    --border: #30363d;
+    --done: #3fb950;
+  }
+}
+
+:root[data-theme="dark"] {
+  --bg: #0d1117;
+  --fg: #e6edf3;
+  --muted: #9da7b3;
+  --accent: #6cb6ff;
+  --border: #30363d;
+  --done: #3fb950;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: system-ui, -apple-system, "Segoe UI", "Noto Sans Thai", sans-serif;
+  line-height: 1.5;
+}
+
+.skip-link {
+  position: absolute;
+  left: -9999px;
+}
+
+.skip-link:focus {
+  left: 16px;
+  top: 16px;
+  background: var(--bg);
+  color: var(--accent);
+  padding: 8px 12px;
+  border: 2px solid var(--accent);
+  z-index: 10;
+}
+
+main {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 24px 16px 48px;
+}
+
+h1 {
+  font-size: 1.6rem;
+  margin: 0 0 8px;
+}
+
+.meta {
+  color: var(--muted);
+  margin: 0 0 16px;
+}
+
+.progress {
+  height: 12px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  overflow: hidden;
+  margin-bottom: 24px;
+}
+
+.progress > div {
+  height: 100%;
+  background: var(--done);
+  transition: width 0.2s ease;
+}
+
+section.sprint {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 16px;
+}
+
+section.sprint h2 {
+  font-size: 1.1rem;
+  margin: 0 0 4px;
+}
+
+ul.tasks {
+  list-style: none;
+  padding: 0;
+  margin: 12px 0 0;
+}
+
+ul.tasks li {
+  margin: 8px 0;
+}
+
+ul.tasks label {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  cursor: pointer;
+}
+
+ul.tasks input[type="checkbox"] {
+  margin-top: 4px;
+  width: 18px;
+  height: 18px;
+  flex: none;
+}
+
+ul.tasks input[type="checkbox"]:checked + span {
+  color: var(--muted);
+  text-decoration: line-through;
+}
+
+input[type="checkbox"]:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .progress > div {
+    transition: none;
+  }
+}
