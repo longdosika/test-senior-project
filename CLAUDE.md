@@ -281,3 +281,25 @@ Academic use only — [Year] [University Name]
 - ใช้ `pnpm` เท่านั้น — ห้าม mix กับ `npm` / `yarn`
 - เขียน test ก่อน demo — อาจารย์บางท่านขอดู coverage report
 - Backup database ก่อน defense สัก 1 วัน
+
+---
+
+## 🛠️ Implementation Status (อัปเดตโดย Claude Code)
+
+**Commands** (ใช้ `pnpm` เท่านั้น)
+```bash
+pnpm install   # ติดตั้ง dependencies
+pnpm dev       # รัน dev server ที่ http://localhost:3000
+pnpm test      # รัน unit tests (Vitest)
+pnpm lint      # type-check ด้วย tsc
+pnpm build     # production build
+```
+
+**Built so far**
+- Next.js 14 (App Router) + TypeScript, หน้าแดชบอร์ด sprint ที่ติ๊กงานและดูความคืบหน้า
+- `lib/tasks.ts` — ข้อมูล sprint/tasks ตาม spec และฟังก์ชันคำนวณความคืบหน้า พร้อม tests
+- Responsive, มี skip link, progressbar ARIA, รองรับ dark mode และ `prefers-reduced-motion`
+
+**Not yet built** (ตาม spec แต่ยังไม่มีในโค้ด)
+- Express API และ PostgreSQL / migration (`DATABASE_URL` อยู่ใน `.env.example` แล้ว)
+- Authentication, WebSocket, push/LINE notification, file upload, payment, admin dashboard, i18n framework

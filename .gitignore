@@ -1,0 +1,17 @@
+# dependencies
+node_modules/
+.pnpm-store/
+
+# next.js
+.next/
+out/
+next-env.d.ts
+
+# env files — never commit secrets
+.env
+.env*.local
+
+# misc
+*.tsbuildinfo
+coverage/
+.DS_Store
