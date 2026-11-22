@@ -3,8 +3,6 @@
 > **สำหรับโปรเจกต์จบการศึกษา / วิจัยระดับปริญญาตรี**
 > สร้างโดย AppForge | ปีการศึกษา 2026
 
----
-
 ## 📋 PROJECT OVERVIEW
 
 **ชื่อโปรเจกต์:** Senior Project
@@ -13,8 +11,6 @@
 **กลุ่มเป้าหมาย:** นักเรียน / นักศึกษา
 **แพลตฟอร์ม:** Desktop App
 **Stack:** Next.js + Node.js + Express + PostgreSQL
-
----
 
 ## 🎯 บทนำ (Introduction)
 
@@ -30,8 +26,6 @@
 - **ฟีเจอร์หลัก:** Authentication & User Accounts, Responsive UI (mobile-first), Real-time updates (WebSocket)
 - **นอกขอบเขต:** Mobile native app, third-party integrations นอกเหนือจากที่ระบุ
 
----
-
 ## 🏗️ สถาปัตยกรรมระบบ (System Architecture)
 
 ### Tech Stack
@@ -41,7 +35,6 @@
 | Backend | Node.js + Express | Built-in API routes |
 | Database | PostgreSQL | Relational, ACID compliant |
 | Deploy | Vercel + Supabase | CI/CD, preview deployments |
-
 
 ### Architecture Diagram
 ```mermaid
@@ -67,8 +60,6 @@ sequenceDiagram
   FE-->>U: Updated UI
 ```
 
----
-
 ## ✨ Features Required
 - [ ] **Authentication & User Accounts**
 - [ ] **Responsive UI (mobile-first)**
@@ -89,8 +80,6 @@ sequenceDiagram
 - [ ] **Gamification & Badges**
 - [ ] **CLAUDE.md + AI Workflow**
 
----
-
 ## 📐 Database Schema
 
 ### Core Entities
@@ -110,8 +99,6 @@ User {
 }
 ```
 
----
-
 ## 🧪 แผนการทดสอบ (Test Plan)
 
 | ประเภทการทดสอบ | เครื่องมือ | เกณฑ์ผ่าน |
@@ -121,8 +108,6 @@ User {
 | E2E Test | Playwright | Happy path scenarios pass |
 | Performance | Lighthouse | Score ≥ 80 ทุก category |
 | Accessibility | axe-core | Zero critical violations |
-
----
 
 ## 📊 Presentation Slides Outline (8–10 slides)
 
@@ -174,95 +159,35 @@ User {
 **Slide 10 — Q&A**
 - คำถามที่คาดว่าจะถามและคำตอบสั้นๆ
 
----
-
 ## 📋 Project Tasks (Academic Milestones)
 
-### Sprint 1 — Proposal & Design (สัปดาห์ 1–2)
+### Sprint 1 — Proposal & Design
 - [ ] เขียน project proposal และส่งอาจารย์
 - [ ] ออกแบบ database schema
 - [ ] สร้าง wireframe หน้าจอหลัก
 - [ ] ตั้งค่า development environment
 
-### Sprint 2 — Core Implementation (สัปดาห์ 3–6)
+### Sprint 2 — Core Implementation
 - [ ] Setup project structure + CI/CD
 - [ ] สร้าง database + migration
 - [ ] พัฒนา Authentication
 - [ ] พัฒนา core features ตามวัตถุประสงค์
 
-### Sprint 3 — Feature Complete (สัปดาห์ 7–9)
+### Sprint 3 — Feature Complete
 - [ ] พัฒนา features ทั้งหมดให้ครบ
 - [ ] Integration testing
 - [ ] ทำ UI polish และ responsive
 - [ ] User acceptance testing กับกลุ่มตัวอย่าง
 
-### Sprint 4 — Defense Preparation (สัปดาห์ 10–12)
+### Sprint 4 — Defense Preparation
 - [ ] เขียนรายงานฉบับสมบูรณ์
 - [ ] สร้าง presentation slides
 - [ ] ซ้อมนำเสนอ + รับ feedback
 - [ ] Deploy production version
 - [ ] Final documentation
 
----
-
 ## 📄 README Template
-
-```markdown
-# Senior Project
-
-> ระบบ web application สำหรับโปรเจกต์จบการศึกษา พร้อม spec และ documentation ส่งอาจารย์
-
-## About This Project
-- **Type:** Senior Project — [University Name], [Department]
-- **Academic Year:** 2026
-- **Stack:** Next.js + Node.js + Express + PostgreSQL
-
-## Features
-- Authentication & User Accounts
-- Responsive UI (mobile-first)
-- Real-time updates (WebSocket)
-- Push Notifications
-- LINE Notification
-- File Upload & Storage
-- Search & Filters
-- Payment Integration (Stripe/Omise)
-- Admin Dashboard
-- Dark mode / Theme switching
-- Offline support (PWA)
-- Internationalization (i18n)
-- Analytics & Reporting
-- SEO & Meta Tags
-- AI / ML Integration
-- Quiz Engine & Scoring
-- Gamification & Badges
-- CLAUDE.md + AI Workflow
-
-## Getting Started
-
-### Prerequisites
-- Node.js ≥ 18
-- pnpm ≥ 8
-
-### Installation
-\`\`\`bash
-git clone <repo-url>
-cd <project>
-pnpm install
-cp .env.example .env.local   # fill in your keys
-pnpm dev
-\`\`\`
-
-## Architecture
-> See /docs/architecture.md for full diagram
-
-## Contributing
-This project is part of academic coursework — contributions by team members only.
-
-## License
-Academic use only — [Year] [University Name]
-```
-
----
+(ใช้เป็นแม่แบบ README.md — ใส่ Features และ Stack ตามข้างบน)
 
 ## ♿ ACCESSIBILITY (WCAG 2.1 AA)
 
@@ -272,34 +197,10 @@ Academic use only — [Year] [University Name]
 - Color contrast ratio ≥ 4.5:1 for normal text
 - Reduced motion: respect `prefers-reduced-motion`
 
----
-
 ## 🔒 Gotchas — สิ่งที่มักพลาดในงาน Senior Project
 
 - ห้าม commit `.env.local` เด็ดขาด — ใส่ใน `.gitignore` ก่อนเสมอ
 - ทำ migration ก่อน push ทุกครั้ง — ไม่งั้น production DB ไม่ตรงกับ schema
 - ใช้ `pnpm` เท่านั้น — ห้าม mix กับ `npm` / `yarn`
 - เขียน test ก่อน demo — อาจารย์บางท่านขอดู coverage report
-- Backup database ก่อน defense สัก 1 วัน
-
----
-
-## 🛠️ Implementation Status (อัปเดตโดย Claude Code)
-
-**Commands** (ใช้ `pnpm` เท่านั้น)
-```bash
-pnpm install   # ติดตั้ง dependencies
-pnpm dev       # รัน dev server ที่ http://localhost:3000
-pnpm test      # รัน unit tests (Vitest)
-pnpm lint      # type-check ด้วย tsc
-pnpm build     # production build
-```
-
-**Built so far**
-- Next.js 14 (App Router) + TypeScript, หน้าแดชบอร์ด sprint ที่ติ๊กงานและดูความคืบหน้า
-- `lib/tasks.ts` — ข้อมูล sprint/tasks ตาม spec และฟังก์ชันคำนวณความคืบหน้า พร้อม tests
-- Responsive, มี skip link, progressbar ARIA, รองรับ dark mode และ `prefers-reduced-motion`
-
-**Not yet built** (ตาม spec แต่ยังไม่มีในโค้ด)
-- Express API และ PostgreSQL / migration (`DATABASE_URL` อยู่ใน `.env.example` แล้ว)
-- Authentication, WebSocket, push/LINE notification, file upload, payment, admin dashboard, i18n framework
+- Backup database ก่อน defense
