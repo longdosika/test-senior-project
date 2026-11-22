@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState, type FormEvent } from "react";
-import { ApiError, apiFetch, getStoredToken } from "../../lib/api-client";
+import { ApiError, apiFetch, currentUser } from "../../lib/api-client";
 import { BADGES, type BadgeId } from "../../lib/badges";
 import { usePrefs } from "../../components/Providers";
 
@@ -20,12 +20,21 @@ export default function QuizPage() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const ok = Boolean(getStoredToken());
-    setAuthed(ok);
-    if (!ok) return;
-    apiFetch<{ items: QuizSummary[] }>("/api/quizzes")
-      .then((res) => setQuizzes(res.items))
-      .catch((err) => setError(err instanceof ApiError ? err.message : t("common.error")));
+    let active = true;
+    currentUser()
+      .then(async (user) => {
+        if (!active) return;
+        setAuthed(Boolean(user));
+        if (!user) return;
+        const res = await apiFetch<{ items: QuizSummary[] }>("/api/quizzes");
+        if (active) setQuizzes(res.items);
+      })
+      .catch((err) => {
+        if (active) setError(err instanceof ApiError ? err.message : t("common.error"));
+      });
+    return () => {
+      active = false;
+    };
   }, [t]);
 
   async function open(id: string) {

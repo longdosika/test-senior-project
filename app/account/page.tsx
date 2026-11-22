@@ -1,24 +1,21 @@
 "use client";
 
 import { useEffect, useState, type FormEvent } from "react";
-import { ApiError, apiFetch, getStoredToken, setStoredToken } from "../../lib/api-client";
+import { ApiError, apiFetch, currentUser, type SessionUser } from "../../lib/api-client";
 import { usePrefs } from "../../components/Providers";
-
-type User = { id: string; email: string; displayName: string; role: "admin" | "user" };
 
 export default function AccountPage() {
   const { t } = usePrefs();
   const [mode, setMode] = useState<"login" | "register">("login");
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<SessionUser | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
+  // The session cookie is httpOnly, so ask the server whether a session exists.
   useEffect(() => {
-    const token = getStoredToken();
-    if (!token) return;
-    apiFetch<{ user: User }>("/api/auth/me", { token })
-      .then((res) => setUser(res.user))
-      .catch(() => setStoredToken(null));
+    currentUser()
+      .then(setUser)
+      .catch(() => setUser(null));
   }, []);
 
   async function submit(event: FormEvent<HTMLFormElement>) {
@@ -32,11 +29,10 @@ export default function AccountPage() {
     setBusy(true);
     setError(null);
     try {
-      const res = await apiFetch<{ user: User; token: string }>(
-        mode === "register" ? "/api/auth/register" : "/api/auth/login",
-        { method: "POST", json: body, token: null },
-      );
-      setStoredToken(res.token);
+      const res = await apiFetch<{ user: SessionUser }>(mode === "register" ? "/api/auth/register" : "/api/auth/login", {
+        method: "POST",
+        json: body,
+      });
       setUser(res.user);
     } catch (err) {
       setError(err instanceof ApiError ? err.message : t("common.error"));
@@ -49,7 +45,6 @@ export default function AccountPage() {
     try {
       await apiFetch<void>("/api/auth/logout", { method: "POST" });
     } finally {
-      setStoredToken(null);
       setUser(null);
     }
   }

@@ -24,6 +24,7 @@ export async function createTestApp(opts: { startAt?: Date } = {}) {
     db,
     adminEmails: ["boss@example.com"],
     corsOrigin: "http://localhost:3000",
+    cookieSecure: false,
     storage: fakes.storage,
     payments: fakes.payments,
     ai: fakes.ai,
@@ -47,3 +48,16 @@ export async function createTestApp(opts: { startAt?: Date } = {}) {
     },
   };
 }
+
+/** Pulls the raw session token out of a response's Set-Cookie header, or null when none was set. */
+export function sessionTokenFromResponse(res: { headers: Record<string, unknown> }): string | null {
+  const raw = res.headers["set-cookie"];
+  const list = Array.isArray(raw) ? raw : typeof raw === "string" ? [raw] : [];
+  const cookie = list.find((c) => c.startsWith("sp_session="));
+  if (!cookie) return null;
+  const value = cookie.slice("sp_session=".length).split(";")[0];
+  return value ? decodeURIComponent(value) : null;
+}
+
+/** Cookie header that authenticates a request the way the browser does. */
+export const sessionCookieHeader = (token: string) => ({ Cookie: `sp_session=${encodeURIComponent(token)}` });

@@ -25,3 +25,11 @@ export async function refreshBadges(db: Pool, userId: string): Promise<BadgeId[]
   }
   return newlyAwarded;
 }
+
+/**
+ * Admin grant: awards a badge by hand. Returns `awarded: false` when the user already holds it,
+ * so a repeated click never creates a duplicate row.
+ */
+export async function grantBadge(db: Pool, userId: string, badgeId: BadgeId): Promise<{ awarded: boolean }> {
+  return { awarded: await repo.awardBadge(db, userId, badgeId) };
+}

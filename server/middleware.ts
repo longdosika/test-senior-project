@@ -1,23 +1,22 @@
 import type { NextFunction, Request, Response } from "express";
 import type { AppDeps } from "./deps";
-import { hashSessionToken } from "./auth";
+import { SESSION_COOKIE, hashSessionToken, readCookie } from "./auth";
 import { HttpError } from "./http";
 import * as repo from "./repo";
 import type { User } from "./repo";
 
 export type AuthedRequest = Request & { user: User; sessionHash: string };
 
-function bearerToken(req: Request): string | null {
-  const header = req.get("authorization") ?? "";
-  const match = /^Bearer\s+(\S+)$/i.exec(header);
-  return match ? match[1] : null;
+/** The session token travels only in the httpOnly session cookie, never in a header or body. */
+export function sessionTokenFrom(req: Request): string | null {
+  return readCookie(req.headers.cookie, SESSION_COOKIE);
 }
 
-/** Requires a valid session token; attaches `user` and `sessionHash` to the request. */
+/** Requires a valid session cookie; attaches `user` and `sessionHash` to the request. */
 export function requireUser(deps: AppDeps) {
   return async (req: Request, _res: Response, next: NextFunction) => {
     try {
-      const token = bearerToken(req);
+      const token = sessionTokenFrom(req);
       if (!token) throw new HttpError(401, "authentication required");
       const sessionHash = hashSessionToken(token);
       const user = await repo.findUserBySession(deps.db, sessionHash, (deps.now ?? (() => new Date()))());

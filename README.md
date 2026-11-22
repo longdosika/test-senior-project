@@ -6,7 +6,7 @@ A web application for senior projects: task tracking, accounts, quizzes, admin r
 
 ## Features
 
-- [x] **Authentication & User Accounts**: register, log in, log out, session tokens (7-day TTL), admin role via `ADMIN_EMAILS`
+- [x] **Authentication & User Accounts**: register, log in, log out; session in an httpOnly cookie (7-day TTL, `SameSite=Lax`); admin role via `ADMIN_EMAILS`
 - [x] **Responsive UI (mobile-first)**: small-screen base styles, `min-width` breakpoints at 640px and 1024px
 - [x] **Real-time updates (WebSocket)**: `/ws` broadcasts task created, updated and deleted events, with auto-reconnect
 - [x] **Push Notifications**: Web Push (VAPID) adapter, subscription storage, admin broadcast
@@ -22,7 +22,7 @@ A web application for senior projects: task tracking, accounts, quizzes, admin r
 - [x] **SEO & Meta Tags**: per-route metadata, Open Graph, Twitter cards, `robots.txt`, `sitemap.xml`
 - [x] **AI / ML Integration**: Anthropic Messages API adapter for text summarisation (`claude-haiku-5-5` by default)
 - [x] **Quiz Engine & Scoring**: admin-authored quizzes, server-side scoring, answers hidden until submission
-- [x] **Gamification & Badges**: five badges (first task, finisher, quiz taker, perfect score, uploader), awarded automatically
+- [x] **Gamification & Badges**: five badges (first task, finisher, quiz taker, perfect score, uploader), awarded automatically; admins can view every user's badges and grant one from `/admin`
 - [x] **CLAUDE.md + AI Workflow**: spec in `CLAUDE.md`, workflow in `docs/AI_WORKFLOW.md`
 
 ## Tech Stack
@@ -33,7 +33,7 @@ A web application for senior projects: task tracking, accounts, quizzes, admin r
 | Backend | Node.js, Express 5, `ws` | REST API under `/api`, WebSocket on `/ws` |
 | Database | PostgreSQL (`pg`) | Migrations in `server/db/migrations`, applied at startup |
 | Integrations | Omise, Anthropic, LINE, Web Push (`web-push`) | Each behind an interface, with a fake for tests |
-| Testing | Vitest, Supertest, pg-mem | Optional real-Postgres test via `TEST_DATABASE_URL` |
+| Testing | Vitest (+ v8 coverage), Supertest, pg-mem, Playwright | Browser E2E in `e2e/`; optional real-Postgres runs via `TEST_DATABASE_URL` |
 | Package manager | pnpm | `pnpm install --frozen-lockfile` |
 
 ## Getting started
@@ -51,6 +51,8 @@ pnpm dev                          # web app on http://localhost:3000
 | Command | What it does |
 |---------|--------------|
 | `pnpm test` | Unit and API tests (Vitest) |
+| `pnpm test:coverage` | Same tests with a coverage report for `lib/` and `server/services/` (fails below 70%) |
+| `pnpm e2e` | Builds the web app, then runs the Playwright browser flows against a real API |
 | `pnpm lint` | Type-check with `tsc --noEmit` |
 | `pnpm build` | Production build of the web app |
 | `pnpm server` | Start the Express API with WebSocket |
@@ -63,6 +65,18 @@ TEST_DATABASE_URL=postgres://user:password@localhost:5432/senior_test pnpm test
 ```
 
 Use a disposable database. That test drops and recreates the `public` schema.
+
+### End-to-end flows
+
+`pnpm e2e` runs three Playwright flows in Chromium: student login → create a task, student login → take a quiz, and admin login → dashboard, grant a badge, download the CSV report. The Playwright config starts the API (port 4000) and the built web app (port 3000) itself.
+
+- Without `TEST_DATABASE_URL` the API uses an in-memory database (pg-mem), so the command works on any machine.
+- With `TEST_DATABASE_URL=postgres://...` the API runs on that PostgreSQL. Its `public` schema is reset on every run, so use a disposable database.
+- If Chromium is at `/opt/pw-browsers/chromium`, that binary is used; otherwise run `pnpm exec playwright install chromium` once.
+
+### Coverage
+
+`pnpm test:coverage` measures `lib/**` and `server/services/**` (the business logic). The thresholds in `vitest.config.ts` are 70% for lines, functions, branches and statements.
 
 ## Keys you must add yourself
 
@@ -85,6 +99,7 @@ components/     Providers (theme and language), site header
 lib/            Pure logic shared by UI and API: quiz scoring, badges, CSV, i18n, theme, SEO
 server/         Express app, routes, repositories, providers, migrations, tests
 public/         Service worker and icon
+e2e/            Playwright browser flows, plus the API launcher and seeding they use
 docs/           AI workflow
 CLAUDE.md       Project specification
 ```
@@ -102,6 +117,11 @@ graph TD
 
 ## Known limits
 
-- Real-time and PWA behaviour are verified with unit and API tests. Browser-level E2E tests (Playwright) and Lighthouse/axe audits are not wired into `pnpm test` yet.
-- Session tokens are stored in `localStorage` for simplicity. Moving them to `httpOnly` cookies is the next hardening step.
-- File storage uses local disk. Use object storage before deploying to a multi-instance host.
+- **Sessions are cookies, so the web app and API must share a site.** The session cookie is `SameSite=Lax`. Browsers send it on cross-origin `fetch` only when the site is the same, for example `app.example.com` with `api.example.com`, or local development on `localhost:3000` and `localhost:4000`. A Vercel frontend calling an API on a different site will not be logged in until the API is reverse-proxied under the same site (for example with Next.js rewrites). The `Authorization` header is no longer accepted. Set `NODE_ENV=production` on the API so the cookie is marked `Secure` (HTTPS only).
+- **CSRF relies on `SameSite=Lax`.** There is no separate CSRF token. Login has no rate limiting yet.
+- **Browser E2E covers three flows only** (login → task, login → quiz, admin → report and badge grant). Live WebSocket updates are verified by the server-side realtime test, not in the browser.
+- **Lighthouse and axe-core audits are not run yet.** The CLAUDE.md targets (score ≥ 80, zero critical violations) are unverified.
+- **Coverage** for `lib/` and `server/services/` is 97% of lines, measured by `pnpm test:coverage`. Route handlers and provider adapters are covered by API tests but are outside that number.
+- **Push, LINE, Omise and Anthropic** are tested against fakes. No live call has been made to any external service.
+- **File storage uses local disk.** Use object storage before deploying to a multi-instance host.
+- **The PWA service worker** is checked for structure only. Offline behaviour is not tested in a browser.

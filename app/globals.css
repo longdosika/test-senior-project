@@ -402,3 +402,35 @@ textarea:focus-visible {
     scroll-behavior: auto !important;
   }
 }
+
+/* ---------- admin tables & accessibility helpers ---------- */
+.table-wrap {
+  overflow-x: auto; /* wide tables scroll inside their card instead of widening the page */
+  -webkit-overflow-scrolling: touch;
+}
+
+.table-wrap table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 560px;
+}
+
+.table-wrap th,
+.table-wrap td {
+  text-align: start;
+  vertical-align: top;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border, #d0d7de);
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}

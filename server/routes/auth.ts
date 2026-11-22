@@ -1,13 +1,20 @@
 import { randomUUID } from "node:crypto";
-import { Router } from "express";
-import { hashPassword, hashSessionToken, newSessionToken, verifyPassword } from "../auth";
+import { Router, type Request, type Response } from "express";
+import {
+  SESSION_TTL_MS,
+  clearSessionCookie,
+  hashPassword,
+  hashSessionToken,
+  newSessionToken,
+  sessionCookie,
+  verifyPassword,
+} from "../auth";
 import type { AppDeps } from "../deps";
 import { HttpError, requiredString, requireBody } from "../http";
-import { authedUser, requireUser } from "../middleware";
+import { authedUser, requireUser, sessionTokenFrom } from "../middleware";
 import * as repo from "../repo";
 import type { Role } from "../repo";
 
-const SESSION_TTL_MS = 7 * 24 * 60 * 60 * 1000;
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 function validPassword(value: unknown): string {
@@ -27,10 +34,11 @@ export function authRouter(deps: AppDeps) {
   const router = Router();
   const now = deps.now ?? (() => new Date());
 
-  async function issueSession(userId: string): Promise<string> {
+  /** Creates a server-side session and sets it as an httpOnly cookie. The token never appears in the body. */
+  async function startSession(res: Response, userId: string): Promise<void> {
     const token = newSessionToken();
     await repo.insertSession(deps.db, hashSessionToken(token), userId, new Date(now().getTime() + SESSION_TTL_MS));
-    return token;
+    res.setHeader("Set-Cookie", sessionCookie(token, { secure: deps.cookieSecure }));
   }
 
   router.post("/register", async (req, res) => {
@@ -49,8 +57,8 @@ export function authRouter(deps: AppDeps) {
       displayName,
       role,
     });
-    const token = await issueSession(user.id);
-    res.status(201).json({ user, token });
+    await startSession(res, user.id);
+    res.status(201).json({ user });
   });
 
   router.post("/login", async (req, res) => {
@@ -61,13 +69,15 @@ export function authRouter(deps: AppDeps) {
     // Always run one verification so response timing does not reveal whether the email exists.
     const ok = await verifyPassword(password, found?.passwordHash ?? "scrypt$AAAA$AAAA");
     if (!found || !ok) throw new HttpError(401, "invalid email or password");
-    const token = await issueSession(found.user.id);
-    res.json({ user: found.user, token });
+    await startSession(res, found.user.id);
+    res.json({ user: found.user });
   });
 
-  router.post("/logout", requireUser(deps), async (req, res) => {
-    const { sessionHash } = req as unknown as { sessionHash: string };
-    await repo.deleteSession(deps.db, sessionHash);
+  // Idempotent: clears the cookie and drops the server session if one is still valid.
+  router.post("/logout", async (req: Request, res: Response) => {
+    const token = sessionTokenFrom(req);
+    if (token) await repo.deleteSession(deps.db, hashSessionToken(token));
+    res.setHeader("Set-Cookie", clearSessionCookie({ secure: deps.cookieSecure }));
     res.status(204).end();
   });
 

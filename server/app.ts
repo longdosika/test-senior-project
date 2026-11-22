@@ -12,7 +12,9 @@ export function createApp(deps: AppDeps): express.Express {
 
   app.use((req: Request, res: Response, next: NextFunction) => {
     res.setHeader("Access-Control-Allow-Origin", deps.corsOrigin);
-    res.setHeader("Access-Control-Allow-Headers", "Authorization, Content-Type, X-Filename");
+    // Cookies are sent cross-origin only when the origin is explicit (never "*") and credentials are allowed.
+    res.setHeader("Access-Control-Allow-Credentials", "true");
+    res.setHeader("Access-Control-Allow-Headers", "Content-Type, X-Filename");
     res.setHeader("Access-Control-Allow-Methods", "GET, POST, PATCH, DELETE, OPTIONS");
     res.setHeader("Vary", "Origin");
     if (req.method === "OPTIONS") {

@@ -1,6 +1,6 @@
 import request from "supertest";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import { createTestApp } from "./testing/harness";
+import { createTestApp, sessionCookieHeader, sessionTokenFromResponse } from "./testing/harness";
 
 type Ctx = Awaited<ReturnType<typeof createTestApp>>;
 
@@ -11,10 +11,12 @@ async function register(ctx: Ctx, email: string, displayName = "Student") {
     .post("/api/auth/register")
     .send({ email, password: PASSWORD, displayName });
   expect(res.status).toBe(201);
-  return res.body as { user: { id: string; role: string }; token: string };
+  const token = sessionTokenFromResponse(res);
+  if (!token) throw new Error("register did not set the session cookie");
+  return { user: res.body.user as { id: string; role: string }, token };
 }
 
-const auth = (token: string) => ({ Authorization: `Bearer ${token}` });
+const auth = (token: string) => sessionCookieHeader(token);
 
 describe("Express API", () => {
   let ctx: Ctx;

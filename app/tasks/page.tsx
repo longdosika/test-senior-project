@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState, type FormEvent } from "react";
-import { ApiError, apiFetch, API_BASE, getStoredToken } from "../../lib/api-client";
+import { ApiError, apiFetch, API_BASE, currentUser } from "../../lib/api-client";
 import { connectRealtime } from "../../lib/realtime-client";
 import { BADGES, type BadgeId } from "../../lib/badges";
 import { usePrefs } from "../../components/Providers";
@@ -42,7 +42,13 @@ export default function TasksPage() {
 
   // Auth check, then keep the list in sync with server-pushed events.
   useEffect(() => {
-    setAuthed(Boolean(getStoredToken()));
+    let active = true;
+    currentUser()
+      .then((user) => active && setAuthed(Boolean(user)))
+      .catch(() => active && setAuthed(false));
+    return () => {
+      active = false;
+    };
   }, []);
 
   useEffect(() => {

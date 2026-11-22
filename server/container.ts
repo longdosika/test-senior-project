@@ -13,6 +13,7 @@ export type AppConfig = {
   databaseUrl: string | undefined;
   port: number;
   corsOrigin: string;
+  cookieSecure: boolean;
   adminEmails: string[];
   uploadDir: string;
   anthropicApiKey: string | undefined;
@@ -29,6 +30,7 @@ export function loadConfig(env: Record<string, string | undefined> = process.env
     databaseUrl: env.DATABASE_URL || undefined,
     port: Number(env.PORT ?? 4000),
     corsOrigin: env.CORS_ORIGIN ?? "http://localhost:3000",
+    cookieSecure: env.NODE_ENV === "production",
     adminEmails: (env.ADMIN_EMAILS ?? "")
       .split(",")
       .map((e) => e.trim().toLowerCase())
@@ -84,6 +86,7 @@ export function createDeps(opts: { db: Pool; config: AppConfig; events?: EventPu
     db: opts.db,
     adminEmails: config.adminEmails,
     corsOrigin: config.corsOrigin,
+    cookieSecure: config.cookieSecure,
     storage,
     payments,
     ai,

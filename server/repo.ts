@@ -369,6 +369,17 @@ export async function quizAttemptStats(
 
 // ---------- badges ----------
 
+/** Every user with the badge ids they hold, oldest account first. Used by the admin badge view. */
+export async function usersWithBadges(db: Pool): Promise<Array<{ user: User; badgeIds: string[] }>> {
+  const users = await db.query<UserRow>(
+    "SELECT id, email, display_name, role, created_at FROM users ORDER BY created_at, id",
+  );
+  const badges = await db.query<{ user_id: string; badge_id: string }>("SELECT user_id, badge_id FROM user_badges");
+  const byUser = new Map<string, string[]>();
+  for (const b of badges.rows) byUser.set(b.user_id, [...(byUser.get(b.user_id) ?? []), b.badge_id]);
+  return users.rows.map((r) => ({ user: toUser(r), badgeIds: byUser.get(r.id) ?? [] }));
+}
+
 export async function earnedBadgeIds(db: Pool, userId: string): Promise<string[]> {
   const { rows } = await db.query<{ badge_id: string }>("SELECT badge_id FROM user_badges WHERE user_id = $1", [userId]);
   return rows.map((r) => r.badge_id);

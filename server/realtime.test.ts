@@ -54,10 +54,12 @@ describe("realtime updates over WebSocket", () => {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email: "live@example.com", password: "correct-horse-battery", displayName: "Live" }),
     });
-    const { token } = (await reg.json()) as { token: string };
+    // The session arrives as an httpOnly cookie; send it back the way a browser would.
+    const cookie = (reg.headers.get("set-cookie") ?? "").split(";")[0];
+    expect(cookie.startsWith("sp_session=")).toBe(true);
     await fetch(`http://127.0.0.1:${port}/api/tasks`, {
       method: "POST",
-      headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+      headers: { "Content-Type": "application/json", Cookie: cookie },
       body: JSON.stringify({ title: "Live task" }),
     });
 

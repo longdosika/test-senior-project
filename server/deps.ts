@@ -10,6 +10,8 @@ export type AppDeps = {
   db: Pool;
   adminEmails: string[];
   corsOrigin: string;
+  /** Mark the session cookie Secure (HTTPS only). True in production. */
+  cookieSecure: boolean;
   storage: FileStorage;
   payments: PaymentProvider;
   ai: AiProvider;
